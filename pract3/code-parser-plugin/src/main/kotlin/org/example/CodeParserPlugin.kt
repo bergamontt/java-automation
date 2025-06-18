@@ -6,7 +6,6 @@ import java.io.File
 
 class CodeParserPlugin : Plugin<Project> {
 
-
     override fun apply(project: Project) {
         project.tasks.register("concatenate") {
             doLast {
