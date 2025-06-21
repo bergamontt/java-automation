@@ -70,4 +70,8 @@ public class Tuple {
                 Double.compare(w, tuple.w) == 0;
     }
 
+    @Override
+    public String toString() {
+        return "(" + x + ", " + y + ", " + z + ", " + w + ")";
+    }
 }

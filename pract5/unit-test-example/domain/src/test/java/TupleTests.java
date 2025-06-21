@@ -1,5 +1,11 @@
 import com.Tuple;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import java.util.stream.Stream;
 
 public class TupleTests {
 
@@ -115,86 +121,89 @@ public class TupleTests {
         Assertions.assertEquals(fstTuple.multiply(0.5), supposedResult);
     }
 
-    @Test
     @Tag("MathTest")
-    @DisplayName("Magnitude of the vector (1, 0, 0) should be 1")
-    void tuple_magnitude_of_the_vector_100_is_1() {
-        Tuple tuple = Tuple.createVector(1, 0, 0);
-        Assertions.assertEquals(1.0, tuple.magnitude());
+    @CsvSource({
+            "1, 0, 0, 1",
+            "0, 1, 0, 1",
+            "0, 0, 1, 1",
+    })
+    @DisplayName("Integer magnitude of the vector")
+    @ParameterizedTest(name = "Permutation magnitude of the vector ({0}, {1}, {2}) should be {3}")
+    void tuple_magnitude_of_the_vector_permutation(double x, double y, double z, double expected) {
+        Tuple tuple = Tuple.createVector(x, y, z);
+        Assertions.assertEquals(expected, tuple.magnitude());
     }
 
-    @Test
     @Tag("MathTest")
-    @DisplayName("Magnitude of the vector (0, 1, 0) should be 1")
-    void tuple_magnitude_of_the_vector_010_is_1() {
-        Tuple tuple = Tuple.createVector(0, 1, 0);
-        Assertions.assertEquals(1.0, tuple.magnitude());
+    @CsvSource({
+            "1,   2,  3, 14",
+            "-1, -2, -3, 14",
+    })
+    @DisplayName("Float magnitude of the vector")
+    @ParameterizedTest(name = "Magnitude of the vector ({0}, {1}, {2}) should be sqrt({3})")
+    void tuple_real_magnitude_of_the_vector(double x, double y, double z, double expected) {
+        Tuple tuple = Tuple.createVector(x, y, z);
+        Assertions.assertEquals(Math.sqrt(expected), tuple.magnitude());
     }
 
-    @Test
     @Tag("MathTest")
-    @DisplayName("Magnitude of the vector (0, 0, 1) should be 1")
-    void tuple_magnitude_of_the_vector_001_is_1() {
-        Tuple tuple = Tuple.createVector(0, 0, 1);
-        Assertions.assertEquals(1.0, tuple.magnitude());
+    @MethodSource("provideDotProductData")
+    @DisplayName("Dot product of two vectors")
+    @ParameterizedTest(name = "The dot product of vector {0} and vector {1} should give vector {2}")
+    void tuple_dot_product(Tuple fstVector, Tuple scdVector, double expected) {
+        Assertions.assertEquals(expected, fstVector.dot(scdVector), 0.0001);
     }
 
-    @Test
     @Tag("MathTest")
-    @DisplayName("Magnitude of the vector (1, 2, 3) should be sqrt(14)")
-    void tuple_magnitude_of_the_vector_123_is_sqrt_14() {
-        Tuple tuple = Tuple.createVector(1, 2, 3);
-        Assertions.assertEquals(Math.sqrt(14), tuple.magnitude());
-    }
-
-    @Test
-    @Tag("MathTest")
-    @DisplayName("Magnitude of the vector (-1, -2, -3) should be sqrt(14)")
-    void tuple_magnitude_of_the_vector_negative_123_is_sqrt_14() {
-        Tuple tuple = Tuple.createVector(-1, -2, -3);
-        Assertions.assertEquals(Math.sqrt(14), tuple.magnitude());
-    }
-
-    @Test
-    @Tag("MathTest")
-    @DisplayName("The dot product of vector (1, 2, 3) and vector (2, 3, 4) should give 20")
-    void tuple_dot_product_of_vector_20() {
-        Tuple fstTuple = Tuple.createVector(1, 2, 3);
-        Tuple scdTuple = Tuple.createVector(2, 3, 4);
-        Assertions.assertEquals(20, fstTuple.dot(scdTuple));
-    }
-
-    @Test
-    @Tag("MathTest")
-    @DisplayName("The cross product of vector (1, 2, 3) and vector (2, 3, 4) should give vector (-1, 2, -1)")
-    void tuple_cross_product_of_vector_123_and_vector_234() {
+    @MethodSource("provideCrossProductData")
+    @DisplayName("Cross vector of two vectors")
+    @ParameterizedTest(name = "The cross product of vector {0} and vector {1} should give vector {2}")
+    void tuple_cross_product(Tuple fstVector, Tuple scdVector, Tuple expected) {
         Assumptions.assumeTrue(checkEqualsMethod());
-        Tuple fstTuple = Tuple.createVector(1, 2, 3);
-        Tuple scdTuple = Tuple.createVector(2, 3, 4);
-        Tuple realResult = fstTuple.cross(scdTuple);
-        Tuple supposedResult = Tuple.createVector(-1, 2, -1);
-        Assertions.assertEquals(supposedResult, realResult);
+        Tuple result = fstVector.cross(scdVector);
+        Assertions.assertEquals(expected, result);
     }
 
-    @Test
-    @Tag("MathTest")
-    @DisplayName("The cross product of vector (2, 3, 4) vector (1, 2, 3) should give vector (1, -2, 1)")
-    void tuple_cross_product_of_vector_234_and_vector_123() {
-        Assumptions.assumeTrue(checkEqualsMethod());
-        Tuple fstTuple = Tuple.createVector(1, 2, 3);
-        Tuple scdTuple = Tuple.createVector(2, 3, 4);
-        Tuple realResult = scdTuple.cross(fstTuple);
-        Tuple supposedResult = Tuple.createVector(1, -2, 1);
-        Assertions.assertEquals(supposedResult, realResult);
+    private static Stream<Arguments> provideDotProductData() {
+        return Stream.of(
+                Arguments.of(
+                        Tuple.createVector(1, 2, 3),
+                        Tuple.createVector(2, 3, 4),
+                        20.0
+                ),
+                Arguments.of(
+                        Tuple.createVector(1, 0, 0),
+                        Tuple.createVector(0, 1, 0),
+                        0.0
+                ),
+                Arguments.of(
+                        Tuple.createVector(2, -1, 3),
+                        Tuple.createVector(-1, 2, -1),
+                        -7.0
+                )
+        );
+    }
+
+    private static Stream<Arguments> provideCrossProductData() {
+        return Stream.of(
+                Arguments.of(
+                        Tuple.createVector(1, 2, 3),
+                        Tuple.createVector(2, 3, 4),
+                        Tuple.createVector(-1, 2, -1)
+                ),
+                Arguments.of(
+                        Tuple.createVector(2, 3, 4),
+                        Tuple.createVector(1, 2, 3),
+                        Tuple.createVector(1, -2, 1)
+                )
+        );
     }
 
     private static boolean checkEqualsMethod() {
         Tuple fstTuple = Tuple.createPoint(1.0, 2.0, 3.0);
         Tuple scdTuple = Tuple.createPoint(1.0, 2.0, 3.0);
-        boolean equalTest = fstTuple.equals(scdTuple);
         Tuple thirdTuple = Tuple.createVector(1.0, 2.0, 3.0);
-        boolean notEqualTest = !fstTuple.equals(thirdTuple);
-        return equalTest && notEqualTest;
+        return fstTuple.equals(scdTuple) && !fstTuple.equals(thirdTuple);
     }
 
 }
