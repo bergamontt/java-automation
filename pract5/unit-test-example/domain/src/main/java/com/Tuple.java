@@ -1,8 +1,10 @@
 package com;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
+@AllArgsConstructor
 public class Tuple {
     private double x;
     private double y;
@@ -11,13 +13,6 @@ public class Tuple {
 
     public final static int VECTOR = 0;
     public final static int POINT = 1;
-
-    public Tuple(double x, double y, double z, double w) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
-        this.w = w;
-    }
 
     public static Tuple createPoint(double x, double y, double z) {
         return new Tuple(x, y, z, POINT);
@@ -49,8 +44,8 @@ public class Tuple {
 
     public Tuple cross(Tuple tuple) {
         return Tuple.createVector(y * tuple.z - z * tuple.y,
-                                  z * tuple.x - x * tuple.z,
-                                  x * tuple.y - y * tuple.x);
+                z * tuple.x - x * tuple.z,
+                x * tuple.y - y * tuple.x);
     }
 
     public boolean isPoint() {
@@ -59,15 +54,6 @@ public class Tuple {
 
     public boolean isVector() {
         return w == VECTOR;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (!(o instanceof Tuple tuple)) return false;
-        return  Double.compare(x, tuple.x) == 0 &&
-                Double.compare(y, tuple.y) == 0 &&
-                Double.compare(z, tuple.z) == 0 &&
-                Double.compare(w, tuple.w) == 0;
     }
 
     @Override
